@@ -1,10 +1,12 @@
-package guru.springramework.sfgpetclinic.services.map;
+package guru.springframework.sfgpetclinic.services.map;
 
-import guru.springramework.sfgpetclinic.model.Pet;
-import guru.springramework.sfgpetclinic.services.PetService;
+import guru.springframework.sfgpetclinic.services.PetService;
+import guru.springframework.sfgpetclinic.model.Pet;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Service
 public class PetServiceMap extends AbstractMapService<Pet, Long> implements PetService {
 
     @Override
