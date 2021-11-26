@@ -18,7 +18,7 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,33 +44,27 @@ class OwnerControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(ownerController).build();
     }
 
-    @Test
-    void listOwners() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"/owners", "/owners/", "/owners/index","/owners/index.html"})
+    void listOwnersP(String url) throws Exception {
 
-        when(ownerService.findAll()).thenReturn(owners);
+        given(ownerService.findAll()).willReturn(owners);
 
-        // When
-        mockMvc.perform(get("/"))
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(view().name("owners/index"))
                 .andExpect(model().attribute("owners", hasSize(2)));
     }
 
-//    @ParameterizedTest
-//    @ValueSource(strings = {"", "/", "/index","/index.html"})
-//    void listOwnersP(String url) throws Exception {
-//
-//        // Given
-//        given(ownerService.findAll()).willReturn(owners);
-//
-//        // When
-//        mockMvc.perform(get(url))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("owners/index"))
-//                .andExpect(model().attribute("owners", hasSize(2)));
-//    }
-
     @Test
-    void findOwner() {
+    void findOwner() throws Exception {
+
+        String url = "/owners/find";
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpect(view().name("notImplemented"));
+
+        verifyNoInteractions(ownerService);
+
     }
 }
