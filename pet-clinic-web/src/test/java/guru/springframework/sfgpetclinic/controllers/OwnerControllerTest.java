@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,28 +45,41 @@ class OwnerControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(ownerController).build();
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"/owners", "/owners/", "/owners/index","/owners/index.html"})
-    void listOwners(String url) throws Exception {
-        owners.add(Owner.builder().id(2L).build());
-        given(ownerService.findAll()).willReturn(owners);
-
-        mockMvc.perform(get(url))
-                .andExpect(status().isOk())
-                .andExpect(view().name("owners/index"))
-                .andExpect(model().attribute("owners", hasSize(2)));
-    }
-
     @Test
     void findOwner() throws Exception {
 
         String url = "/owners/find";
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(view().name("notImplemented"));
+                .andExpect(view().name("owners/findOwners"))
+                .andExpect(model().attributeExists("owner"));
 
         verifyNoInteractions(ownerService);
 
+    }
+
+    @Test
+    void processFindFormReturnMany() throws Exception{
+        given(ownerService.findAllLastNameLike(anyString())).willReturn(Arrays.asList(
+                owner_1,
+                Owner.builder().id(2L).build()
+        ));
+
+        mockMvc.perform(get("/owners"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("owners/ownerlist"))
+                .andExpect(model().attribute("selections", hasSize(2)));
+    }
+
+    @Test
+    void processFindFormReturnOne() throws Exception{
+        given(ownerService.findAllLastNameLike(anyString())).willReturn(Arrays.asList(
+                owner_1
+        ));
+
+        mockMvc.perform(get("/owners"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/"+OWNER_ID));
     }
 
     @Test
