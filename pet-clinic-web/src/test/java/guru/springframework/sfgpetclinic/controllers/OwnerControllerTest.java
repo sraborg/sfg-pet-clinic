@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,20 +34,20 @@ class OwnerControllerTest {
     public MockMvc mockMvc;
 
     Set<Owner> owners;
+    private final Long OWNER_ID = 1L;
+    private final Owner owner_1 = Owner.builder().id(OWNER_ID).build();
 
     @BeforeEach
     void setUp() {
         owners = new HashSet<>();
-        owners.add(Owner.builder().id(1L).build());
-        owners.add(Owner.builder().id(2L).build());
-
+        owners.add(owner_1);
         mockMvc = MockMvcBuilders.standaloneSetup(ownerController).build();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"/owners", "/owners/", "/owners/index","/owners/index.html"})
-    void listOwnersP(String url) throws Exception {
-
+    void listOwners(String url) throws Exception {
+        owners.add(Owner.builder().id(2L).build());
         given(ownerService.findAll()).willReturn(owners);
 
         mockMvc.perform(get(url))
@@ -67,4 +67,18 @@ class OwnerControllerTest {
         verifyNoInteractions(ownerService);
 
     }
+
+    @Test
+    void displayOwner() throws Exception {
+
+        given(ownerService.findById(OWNER_ID)).willReturn(owner_1);
+        final String url = "/owners/" + OWNER_ID;
+
+        mockMvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpect(view().name("owners/ownerDetails"))
+                .andExpect(model().attribute("owner", hasProperty("id", is(OWNER_ID))));
+    }
+
+
 }
