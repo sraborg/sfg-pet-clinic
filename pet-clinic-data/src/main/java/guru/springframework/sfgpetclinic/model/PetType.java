@@ -23,8 +23,6 @@ public class PetType extends BaseEntity {
         this.name = name;
     }
 
-    @Builder
-
 
     @Column(name = "name")
     private String name;
